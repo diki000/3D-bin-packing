@@ -1,15 +1,34 @@
 import numpy as np
 from objekti import Bin
 
-Bin_Length = 100 # length of the bin
-Bin_Height = 100 # height of the bin
-Bin_Width = 100 # width of the bin
-
-numbers_of_bins = 20 # number of bins
-number_of_boxes = 10 # number of boxes
+# Bin_Length = 100 # length of the bin
+# Bin_Height = 100 # height of the bin
+# Bin_Width = 100 # width of the bin
 
 boxes = []
-for i in range(number_of_boxes):
-    box = [np.random.uniform(1/6*Bin_Length, 1/4*Bin_Length), np.random.uniform(1/6*Bin_Height, 1/4*Bin_Height), np.random.uniform(1/6*Bin_Width, 1/4*Bin_Width)]
-    boxes.append(box)
-bins = [Bin([Bin_Length, Bin_Height, Bin_Width]) for _ in range(numbers_of_bins)] # bins to pack boxes into
+
+
+inputs = {
+    'p': [188, 188, 188, 188, 188, 188, 188, 188, 188, 188, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 260, 260, 260, 260, 260, 260, 260, 260, 260, 260, 260, 260, 260, 260, 145, 145, 145, 145, 145],
+    'q': [28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 80, 80, 80, 80, 80 ],
+    'r': [58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 96, 96, 96, 96, 96, 96, 96, 96, 96, 96],
+    'L': [610, 610, 610, 610],
+    'W': [244, 244, 244, 244],
+    'H': [259, 259, 259, 259]
+}
+# inputs = {
+#     'p': [1,1,1,1,2,2,2,2,2,3,3,3,3,3,3,3],
+#     'q': [1,1,2,2,1,1,2,2,2,1,1,2,2,2,1,1],
+#     'r': [1,2,1,2,1,2,1,2,2,1,2,1,2,2,1,2],
+#     'L': [3,3,3,3],
+#     'W': [3,3,3,3],
+#     'H': [3,3,3,3]
+# }
+
+boxes = [[p, q, r] for p, q, r in zip(inputs['p'], inputs['q'], inputs['r'])] # boxes to pack
+
+bins = [Bin([610, 244, 259]) for _ in range(4)] # bins to pack boxes
+
+
+numbers_of_bins = 4 # number of bins
+number_of_boxes = len(boxes) # number of boxes

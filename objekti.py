@@ -188,7 +188,7 @@ def placement_procedure(BPS, VBO, Bins, boxes):
         # pack the box to the bin & update state information
         Bins[selected_bin].adding_new_box(orient(box, BO), selected_EMS, items_sorted[i+1:])
 
-def fitness_function(placement, boxes, Bins):
+def fitness_function(Bins):
     if failed:
         return np.inf
     fitness = 0

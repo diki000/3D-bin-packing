@@ -5,6 +5,7 @@ import math
 import objekti as obj
 import inputs as inp
 import copy
+import multiprocessing
 
 
 def crossover(elite_parent, non_elite_parent):
@@ -38,13 +39,26 @@ def mutation():
         mutants.append(mutant)
     return mutants
 
+
+# def calculate_fitness(chromosome):
+#     bins = copy.deepcopy(inp.bins)
+#     boxes = copy.deepcopy(inp.boxes)
+#     placement = obj.placement_procedure(chromosome[inp.number_of_boxes:], chromosome[:inp.number_of_boxes], bins, boxes)
+#     fitness = obj.fitness_function(bins)
+#     return fitness
+
+# def cal_fitness(population):
+#     with multiprocessing.Pool() as pool:
+#         fitness_list = pool.map(calculate_fitness, population)
+#     return fitness_list
+
 def cal_fitness(population):
     fitness_list = list()
     for chromosome in population:
         bins = copy.deepcopy(inp.bins)
         boxes = copy.deepcopy(inp.boxes)
         placement = obj.placement_procedure(chromosome[inp.number_of_boxes:], chromosome[:inp.number_of_boxes], bins, boxes)
-        fitness = obj.fitness_function(placement, boxes, bins)
+        fitness = obj.fitness_function(bins)
         fitness_list.append(fitness)
     return fitness_list
 
@@ -94,10 +108,12 @@ def evolutionary_process():
 
         if best_fitness_population < best_fitness:
             best_fitness = best_fitness_population
-            best_chromosome = best_fitness_population
             best_iteration = g
+            best_chromosome = population[np.argmin(fitness_list)]
             print(f'Generation: {g} \t Best Fitness: {best_fitness}')
-        print(f'Generation: {g} \t Best Fitness: {best_fitness}')
+        elif g % 50 == 0:
+            print (f'Generation: {g} \t Best Fitness: {best_fitness}')
+        #print(f'Generation: {g} \t Best Fitness: {best_fitness}')
 
 def main():
     evolutionary_process()
