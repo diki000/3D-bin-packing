@@ -1,34 +1,25 @@
-import numpy as np
-from objekti import Bin
-
-# Bin_Length = 100 # length of the bin
-# Bin_Height = 100 # height of the bin
-# Bin_Width = 100 # width of the bin
-
-boxes = []
 
 
-inputs = {
-    'p': [188, 188, 188, 188, 188, 188, 188, 188, 188, 188, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 260, 260, 260, 260, 260, 260, 260, 260, 260, 260, 260, 260, 260, 260, 145, 145, 145, 145, 145],
-    'q': [28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 80, 80, 80, 80, 80 ],
-    'r': [58, 58, 58, 58, 58, 58, 58, 58, 58, 58, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 79, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 96, 96, 96, 96, 96, 96, 96, 96, 96, 96],
-    'L': [610, 610, 610, 610],
-    'W': [244, 244, 244, 244],
-    'H': [259, 259, 259, 259]
-}
-# inputs = {
-#     'p': [1,1,1,1,2,2,2,2,2,3,3,3,3,3,3,3],
-#     'q': [1,1,2,2,1,1,2,2,2,1,1,2,2,2,1,1],
-#     'r': [1,2,1,2,1,2,1,2,2,1,2,1,2,2,1,2],
-#     'L': [3,3,3,3],
-#     'W': [3,3,3,3],
-#     'H': [3,3,3,3]
-# }
+Bin_Length = 65 # length of the bin
+Bin_Height = 70 # height of the bin
+Bin_Width = 80 # width of the bin
+Num_of_Bins = 10 # number of bins
 
-boxes = [[p, q, r] for p, q, r in zip(inputs['p'], inputs['q'], inputs['r'])] # boxes to pack
+Boxes = []
 
-bins = [Bin([610, 244, 259]) for _ in range(4)] # bins to pack boxes
+for i in range(15):
+    Boxes.append([10, 15, 20])
 
+for i in range(30):
+    Boxes.append([10, 20, 40])
 
-numbers_of_bins = 4 # number of bins
-number_of_boxes = len(boxes) # number of boxes
+for i in range(10):
+    Boxes.append([5, 30, 25])
+
+for i in range(10):
+    Boxes.append([5, 40, 30])
+
+for i in range(10):
+    Boxes.append([15, 20, 35])
+
+Num_of_Boxes = len(Boxes)

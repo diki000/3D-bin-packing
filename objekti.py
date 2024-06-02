@@ -20,8 +20,7 @@ class Bin():
     
     def adding_new_box(self, box, selected_EMS, remaining_boxes):
         box_to_place = np.array(box)
-        selected_min = np.array(selected_EMS[0])
-        placed_box = [selected_min, selected_min + box_to_place] #place box in bottom left corner of EMS
+        placed_box = [np.array(selected_EMS[0]), np.array(selected_EMS[0]) + box_to_place] #place box in bottom left corner of EMS
         self.items.append(placed_box)
         #Step 1: Get smallest dimension and smallest volume of remaining boxes
         #get smallest dimension and smallest volume of remaining boxes
@@ -99,8 +98,7 @@ def DFTRC2(bin, box, existing_EMSs):
     maxDist = -1
     selectedEMS = None
     for EMS in existing_EMSs:
-        for direction in range(1, 7): # 6 directions
-
+        for direction in range(1, 7):
             d, w, h = orient(box, direction)
             if fitin((d, w, h), EMS):
 
@@ -112,6 +110,33 @@ def DFTRC2(bin, box, existing_EMSs):
                     selectedEMS = EMS
 
     return selectedEMS
+
+def BestFit(bin, box, existing_EMSs):
+    minVolume = np.inf
+    selectedEMS = None
+    for EMS in existing_EMSs:
+        for direction in range(1, 7): # 6 directions
+
+            d, w, h = orient(box, direction)
+            if fitin((d, w, h), EMS):
+
+                volume = np.product(EMS[1] - EMS[0] - np.array((d, w, h)))
+
+                if volume < minVolume: # find minimal volume
+                    minVolume = volume
+                    selectedEMS = EMS
+
+    return selectedEMS
+
+def FirstFit(bin, box, existing_EMSs):
+    for EMS in existing_EMSs:
+        for direction in range(1, 7): # 6 directions
+
+            d, w, h = orient(box, direction)
+            if fitin((d, w, h), EMS):
+                return EMS
+
+    return None
 
 def fitin(box, EMS):
     for d in range(3):
@@ -164,9 +189,8 @@ def placement_procedure(BPS, VBO, Bins, boxes):
                 selected_EMS = EMS
                 break
         else: # if no Bin is selected
-            
+            selected_bin = num_opened_bins
             num_opened_bins += 1 
-            selected_bin = num_opened_bins - 1
             if num_opened_bins > len(Bins):
                 failed = True
                 return
@@ -188,12 +212,13 @@ def placement_procedure(BPS, VBO, Bins, boxes):
         # pack the box to the bin & update state information
         Bins[selected_bin].adding_new_box(orient(box, BO), selected_EMS, items_sorted[i+1:])
 
+
 def fitness_function(Bins):
     if failed:
         return np.inf
-    fitness = 0
-    fitness += num_opened_bins
+    fitness = num_opened_bins
     #get least loaded bin
     fitness += least_loaded_bin(num_opened_bins, Bins)
+
     return fitness
 
