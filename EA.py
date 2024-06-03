@@ -10,16 +10,23 @@ import matplotlib.pyplot as plt
 
 def crossover(elite_parent, non_elite_parent):
     offspring = []
-    for i in range(2*inp.number_of_boxes): #length of a chromosome
+    for i in range(2*inp.number_of_boxes + inp.number_of_bins): #length of a chromosome
         if np.random.uniform(0.0, 1.0) < konst.prob_crossover:
             offspring.append(elite_parent[i])
         else:
             offspring.append(non_elite_parent[i])
     return offspring
 
+def crossover_2(elite_parent, non_elite_parent):
+    point = random.randint(1, len(elite_parent) - 1)
+    child1 = np.concatenate((elite_parent[:point], non_elite_parent[point:]))
+    child2 = np.concatenate((non_elite_parent[:point], elite_parent[point:]))
+    return child1, child2
+
+
 def sbx_crossover(elite_parent, non_elite_parent):
     offspring = []
-    for i in range(2*inp.number_of_boxes): #length of a chromosome
+    for i in range(2*inp.number_of_boxes + inp.number_of_bins): #length of a chromosome
         if np.random.uniform(0.0, 1.0) < konst.prob_crossover:
             beta = np.random.uniform(0.0, 1.0)
             if beta <= 0.5:
@@ -37,19 +44,23 @@ def sbx_crossover(elite_parent, non_elite_parent):
             offspring.append(non_elite_parent[i])
     return offspring
 
+def select(population, fitnesses, k=3):
+    selected = random.sample(list(zip(population, fitnesses)), k)
+    selected.sort(key=lambda x: x[1])
+    return selected[0][0]
 
 def mating(elites, non_elites):
     offspring_list = []
     for _ in range(konst.num_of_offsprings): #number of offsprings in each generation
         elite_parent = random.choice(elites) #selecting a random elite parent
         non_elite_parent = random.choice(non_elites) #selecting a random non-elite parent
-        offspring = crossover(elite_parent, non_elite_parent)
+        offspring = sbx_crossover(elite_parent, non_elite_parent)
         offspring_list.append(offspring)
     return offspring_list
 
 def generate_chromosome():
     chromosome = []
-    for _ in range(2*inp.number_of_boxes): #length of a chromosome is 2*n where n is the number of items to be packed
+    for _ in range(2*inp.number_of_boxes + inp.number_of_bins): #length of a chromosome is 2*n where n is the number of items to be packed
         chromosome.append(np.random.uniform(low=0.0, high=1.0))
     return chromosome
 
@@ -62,7 +73,7 @@ def mutation():
 
 
 def mutation_2(chromosome): #less aggressive mutation
-    for i in range(2*inp.number_of_boxes): #length of a chromosome
+    for i in range(2*inp.number_of_boxes + inp.number_of_bins): #length of a chromosome
         if np.random.uniform(0.0, 1.0) < konst.prob_mutation:
             chromosome[i] = np.random.uniform(low=0.0, high=1.0)
     return chromosome
@@ -70,24 +81,14 @@ def mutation_2(chromosome): #less aggressive mutation
 def calculate_fitness(chromosome):
     bins = copy.deepcopy(inp.bins)
     boxes = copy.deepcopy(inp.boxes)
-    placement = obj.placement_procedure(chromosome[inp.number_of_boxes:], chromosome[:inp.number_of_boxes], bins, boxes)
-    fitness = obj.fitness_function(bins)
+    placement = obj.placement_procedure(chromosome[:inp.number_of_boxes], chromosome[inp.number_of_boxes:inp.number_of_boxes*2], chromosome[inp.number_of_boxes*2:],bins, boxes)
+    fitness = obj.fitness_function(bins, chromosome[inp.number_of_boxes*2:])
     return fitness
 
 def cal_fitness(population):
     with multiprocessing.Pool() as pool:
         fitness_list = pool.map(calculate_fitness, population)
     return fitness_list
-
-# def cal_fitness(population):
-#     fitness_list = list()
-#     for chromosome in population:
-#         bins = copy.deepcopy(inp.bins)
-#         boxes = copy.deepcopy(inp.boxes)
-#         placement = obj.placement_procedure(chromosome[inp.number_of_boxes:], chromosome[:inp.number_of_boxes], bins, boxes)
-#         fitness = obj.fitness_function(bins)
-#         fitness_list.append(fitness)
-#     return fitness_list
 
 def evolutionary_process():
     generations = []
@@ -106,38 +107,24 @@ def evolutionary_process():
 
 
     for g in range(konst.num_generations):
+        fitness_list = cal_fitness(population)
+        new_population = []
+        top_individuals = np.argsort(fitness_list)[:konst.num_elites]
+        new_population.extend([population[i] for i in top_individuals])
 
-        sorted = np.argsort(fitness_list)
+        for _ in range((konst.num_individuals-konst.num_elites) // 2):
+            parent1 = select(population, fitness_list)
+            parent2 = select(population, fitness_list)
+            
+            child1, child2 = crossover_2(parent1, parent2)
+            
+            child1 = mutation_2(child1)
+            child2 = mutation_2(child2)
+            
+            new_population.extend([child1, child2])
         
-        elites = []
-        for i in range(konst.num_elites):
-            elites.append(population[sorted[i]])
-
-        non_elites = []
-        for i in range(konst.num_elites, konst.num_individuals):
-            non_elites.append(population[sorted[i]])
-
-        offsprings = mating(elites, non_elites)
-        mutants = []
-        for i in range(konst.num_mutants):
-            mutants.append(mutation_2(random.choice(population)))
-        
-        # mutants = mutation()
-
-        offspring_fitness_list = cal_fitness(offsprings)
-        mutants_fitness_list = cal_fitness(mutants)
-        elite_fitness_list = []
-        for i in range(konst.num_elites):
-            elite_fitness_list.append(fitness_list[sorted[i]])
-
-        fitness_list = elite_fitness_list + offspring_fitness_list + mutants_fitness_list
-        population = elites + mutants + offsprings
-
-        best_fitness_population = np.inf
-        for i in range(konst.num_individuals):
-            if fitness_list[i] < best_fitness_population:
-                best_fitness_population = fitness_list[i]
-
+        population = new_population
+        best_fitness_population = min(fitness_list)
         generations.append(g)
         mean_fitness_values.append(np.mean(fitness_list))
         best_fitness_values.append(best_fitness_population)
@@ -149,8 +136,7 @@ def evolutionary_process():
             best_chromosome = population[np.argmin(fitness_list)]
             print(f'\nGeneration: {g} \t Best Fitness: {best_fitness}\n')
 
-        print(f'Generation: {g} \t Best Fitness: {best_fitness}')
-        print(f'Population mean fitness: {np.mean(fitness_list)}')
+        print(f'Generation: {g} \t Best Fitness: {best_fitness_population} \t Mean Fitness: {np.mean(fitness_list)}')
     
     #write all the results to a file
     with open('results-best.txt', 'w') as f:

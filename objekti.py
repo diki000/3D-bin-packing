@@ -154,21 +154,26 @@ def inscribed(EMS_1, EMS_2):
         return True
     return False
 
-def least_loaded_bin(num_opened_bins, Bins):
+def least_loaded_bin(num_opened_bins, Bins, CLS):
     # find least load
+    binIndex = -1
+    Bins = [Bins[i] for i in np.argsort(CLS)]
     leastLoad = np.inf
     for k in range(num_opened_bins):
         load = Bins[k].get_loaded_volume()
         if load < leastLoad:
             leastLoad = load
+            binIndex = k
     
-    least_loaded_ratio = leastLoad / np.product(Bins[0].capacity)
+    least_loaded_ratio = leastLoad / np.product(Bins[binIndex].capacity)
     return least_loaded_ratio % 1
 
-def placement_procedure(BPS, VBO, Bins, boxes):
+def placement_procedure(BPS, VBO, CLS, Bins, boxes):
 
     # pack box in the order of BPS
     items_sorted = [boxes[i] for i in np.argsort(BPS)]
+    # sort containers in the order of CLS
+    Bins = [Bins[i] for i in np.argsort(CLS)]
     global num_opened_bins
     global failed
     num_opened_bins = 1
@@ -213,12 +218,12 @@ def placement_procedure(BPS, VBO, Bins, boxes):
         Bins[selected_bin].adding_new_box(orient(box, BO), selected_EMS, items_sorted[i+1:])
 
 
-def fitness_function(Bins):
+def fitness_function(Bins, CLS):
     if failed:
-        return np.inf
+        return num_opened_bins + 1
     fitness = num_opened_bins
     #get least loaded bin
-    fitness += least_loaded_bin(num_opened_bins, Bins)
+    fitness += least_loaded_bin(num_opened_bins, Bins, CLS)
 
     return fitness
 
