@@ -8,7 +8,7 @@ import copy
 import multiprocessing
 import matplotlib.pyplot as plt
 
-def crossover(elite_parent, non_elite_parent):
+def crossover(elite_parent, non_elite_parent): #pokazao se loš
     offspring = []
     for i in range(2*inp.number_of_boxes + inp.number_of_bins): #length of a chromosome
         if np.random.uniform(0.0, 1.0) < konst.prob_crossover:
@@ -24,7 +24,7 @@ def crossover_2(elite_parent, non_elite_parent):
     return child1, child2
 
 
-def sbx_crossover(elite_parent, non_elite_parent):
+def sbx_crossover(elite_parent, non_elite_parent): #pokazao se loš
     offspring = []
     for i in range(2*inp.number_of_boxes + inp.number_of_bins): #length of a chromosome
         if np.random.uniform(0.0, 1.0) < konst.prob_crossover:
@@ -49,7 +49,7 @@ def select(population, fitnesses, k=3):
     selected.sort(key=lambda x: x[1])
     return selected[0][0]
 
-def mating(elites, non_elites):
+def select_2(elites, non_elites): #pokazao se loš
     offspring_list = []
     for _ in range(konst.num_of_offsprings): #number of offsprings in each generation
         elite_parent = random.choice(elites) #selecting a random elite parent
@@ -85,7 +85,7 @@ def calculate_fitness(chromosome):
     fitness = obj.fitness_function(bins, chromosome[inp.number_of_boxes*2:])
     return fitness
 
-def cal_fitness(population):
+def cal_fitness(population): #parallel fitness calculation
     with multiprocessing.Pool() as pool:
         fitness_list = pool.map(calculate_fitness, population)
     return fitness_list
@@ -95,7 +95,7 @@ def evolutionary_process():
     mean_fitness_values = []
     best_fitness_values = []
     population = []
-    for _ in range(konst.num_individuals):
+    for _ in range(konst.num_individuals):  
         chromosome = generate_chromosome()
         population.append(chromosome)
 
@@ -136,22 +136,17 @@ def evolutionary_process():
             best_chromosome = population[np.argmin(fitness_list)]
             print(f'\nGeneration: {g} \t Best Fitness: {best_fitness}\n')
 
-        print(f'Generation: {g} \t Best Fitness: {best_fitness_population} \t Mean Fitness: {np.mean(fitness_list)}')
+        # print(f'Generation: {g} \t Best Fitness: {best_fitness_population} \t Mean Fitness: {np.mean(fitness_list)}')
     
     #write all the results to a file
-    with open('results-best.txt', 'w') as f:
-        for i in range(len(generations)):
-            f.write(f'{best_fitness_values[i]}\n')
-        
-    with open('results-mean.txt', 'w') as f:
-        for i in range(len(generations)):
-            f.write(f'{mean_fitness_values[i]}\n')
+    with open('results-best.txt', 'a') as f:
+            f.write(f'{best_fitness}\n')
     
-    plt.plot(generations, mean_fitness_values, label='Mean Fitness')
-    plt.plot(generations, best_fitness_values, label='Best Fitness')
-    plt.xlabel('Generations')
-    plt.title('Evolution of Mean and Best Fitness Values')
-    plt.show()
+    # plt.plot(generations, mean_fitness_values, label='Mean Fitness')
+    # plt.plot(generations, best_fitness_values, label='Best Fitness')
+    # plt.xlabel('Generations')
+    # plt.title('Evolution of Mean and Best Fitness Values')
+    # plt.show()
 
 def main():
     evolutionary_process()
